@@ -15,7 +15,7 @@ import QATestLab.test_selenium.utils.WebDriverUtils;
 
 public class MainPage extends BrowserUtils {
 
-	protected static final Logger logger = LoggerFactory.getLogger(BrowserUtils.class);
+	protected static final Logger logger = LoggerFactory.getLogger(MainPage.class);
 
 	public MainPage() {
 		this.driver = WebDriverUtils.getDriver();
@@ -38,17 +38,19 @@ public class MainPage extends BrowserUtils {
 	public WebElement submitButton;
 
 	public void setCurrency(String option) {
+		// waiting for currency to be visible
 		waitForVisibility(currency);
+		
 		logger.info("INFO -------------> Clicking on currency");
 		currency.click();
+		
+		// setting option to currency xpath 
 		String currencyXpath = String.format("//a[contains(text(), '%s')]", option);
 		driver.findElement(By.xpath(currencyXpath)).click();
 		logger.info("INFO -------------> Currency is set");
 	}
 
 	public void comparingCurrency() {
-		waitForVisibility(price);
-
 		String endOfPriceString = returnCurrency(price);
 		logger.info("INFO -------------> Capturing the currency from the price_field: " + endOfPriceString);
 		String endOfCurrencyString = returnCurrency(currency);
@@ -60,6 +62,7 @@ public class MainPage extends BrowserUtils {
 	}
 
 	public String returnCurrency(WebElement element) {
+		waitForVisibility(element);
 		String currencySymbol = element.getText().substring(element.getText().length() - 1, element.getText().length());
 		return currencySymbol;
 	}
@@ -67,8 +70,9 @@ public class MainPage extends BrowserUtils {
 	public SearchPage searchGoods(String goods) {
 		// type "dress" to the searchField
 		searchField.sendKeys(goods);
+		logger.info("INFO -------------> Typing '" + goods + "' to the search field");
 
-		logger.info("INFO -------------> Waiting for button to become clickable");
+		// waiting for submitButton to be clickable
 		waitForClickability(submitButton);
 
 		// clicking on submit button

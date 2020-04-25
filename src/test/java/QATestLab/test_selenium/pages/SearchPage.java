@@ -58,14 +58,13 @@ public class SearchPage extends BrowserUtils {
 	public List<WebElement> listOfPriceAfterDiscount;
 
 	public void comparingNumberOfItems() {
-		// waiting for the to load
+		// waiting for the searchResult to load
 		waitForVisibility(searchResult);
 
 		// capturing number of items
 		String actualNumberOfItems = "" + listOfItems.size();
-
-		String expectedNumberOfItems = numberOfGoods.getText().substring(9).replace(".", "");
 		logger.info("INFO -------------> Capturing the number of items from the page: " + actualNumberOfItems);
+		String expectedNumberOfItems = numberOfGoods.getText().substring(9).replace(".", "");
 
 		// verifying number of items
 		assertEquals(actualNumberOfItems, expectedNumberOfItems);
@@ -73,38 +72,48 @@ public class SearchPage extends BrowserUtils {
 	}
 
 	public void setSortByPriceHighToLow() {
-		// clicking on dropDown, then on sortByList
+		// clicking on dropDown, then on sortBy_List
 		logger.info("INFO -------------> Clicking on dropDown");
 		sortBy_dropdown.click();
+		
 		logger.info("INFO -------------> Clicking on sortByPriceHighToLow");
 		sortByPriceHighToLow.click();
+		
 		logger.info("INFO -------------> List of goods is sorted by price high to low");
 	}
 
 	public void checkBounderyPriceSorting(String currency) throws InterruptedException {
 		// waiting for updated sorted list
 		Thread.sleep(500);
-
+		
+		logger.info("INFO -------------> Verifying that list is sorted in the right way ");
+		
 		// parsing price tags
 		double firstItem = Double
 				.parseDouble(listOfItemsPrices.get(0).getText().replace(currency, "").replace(",", "."));
-		logger.info("INFO -------------> Getting first item " + firstItem);
+		logger.info("INFO -------------> Getting first item: " + firstItem);
 		double middleItem = Double.parseDouble(
 				listOfItemsPrices.get(listOfItemsPrices.size() / 2).getText().replace(currency, "").replace(",", "."));
-		logger.info("INFO -------------> Getting middle item " + middleItem);
+		logger.info("INFO -------------> Getting middle item: " + middleItem);
 		double lastItem = Double.parseDouble(
 				listOfItemsPrices.get(listOfItemsPrices.size() - 1).getText().replace(currency, "").replace(",", "."));
-		logger.info("INFO -------------> Getting last item " + lastItem);
+		logger.info("INFO -------------> Getting last item: " + lastItem);
 
 		// verifying that list is sorted in the right way
 		assertTrue(firstItem >= middleItem);
-		logger.info("INFO -------------> Passing first assertion");
 		assertTrue(middleItem >= lastItem);
+		logger.info("INFO -------------> List is sorted in the right way");
+
 	}
 
 	public void comparingPriceDiscount() {
+		
+		logger.info("INFO -------------> Comparing price discount ");
 
+		// here we run through two elements and comparing price with the indicated discount size
 		for (int index = 0; index < listOfPriceBeforeDiscount.size(); index++) {
+
+			// parsing price and percentage tags
 			double percentage = Double
 					.valueOf(listOfItemsDiscountPercentage.get(index).getText().replace("-", "").replace("%", ""));
 			double priceBeforeDiscount = Double
@@ -112,12 +121,17 @@ public class SearchPage extends BrowserUtils {
 			double priceAfterDiscount = Double
 					.valueOf(listOfPriceAfterDiscount.get(index).getText().replace(",", ".").replace("$", ""));
 
+			// calculating amount of discount
 			double discount = priceBeforeDiscount * (percentage / 100);
 
+			// calculating price with discount
 			double discountedPrice = priceBeforeDiscount - discount;
 			discountedPrice = Double.valueOf(new DecimalFormat("##.##").format(discountedPrice).replace(",", "."));
-
+			logger.info("INFO -------------> Price with discount after calculating: " + discountedPrice);
+			logger.info("INFO -------------> Actual price we have: " + priceAfterDiscount);
+			// verifying that the price before and after the discount matches the indicated discount size
 			assertTrue(priceAfterDiscount == discountedPrice);
 		}
+		logger.info("INFO -------------> Prices match the indicated discount size");
 	}
 }
